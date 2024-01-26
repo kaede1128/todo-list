@@ -1,7 +1,7 @@
 // Abstract class for TodoItemFormatter
 class TodoItemFormatter {
   formatTask(task) {
-    return task.length > 14 ? task.slice(0, 14) + "..." : task;
+    return task.length > 30 ? task.slice(0, 30) + "..." : task;
   }
 
   formatRemark(remark) {
