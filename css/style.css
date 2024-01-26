@@ -30,6 +30,7 @@ body{
     justify-content: center;
     margin-bottom: 20px;
     text-align: center;
+    gap: 1rem;
 }
 
 
@@ -123,6 +124,13 @@ header .input-section {
     padding: 10px;
     width: 100%;
     border-bottom: 1px solid rgba( 255, 255, 255, 0.18 );
+}
+
+.todo-item .remark{
+    display: block;
+    font-style: italic;
+    opacity: 0.5;
+    font-size: 0.8rem;
 }
 
 .todo-item p{

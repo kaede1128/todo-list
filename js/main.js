@@ -4,6 +4,10 @@ class TodoItemFormatter {
     return task.length > 14 ? task.slice(0, 14) + "..." : task;
   }
 
+  formatRemark(remark) {
+    return '<span class="remark">' + remark + '</span>' || "";
+  }
+
   formatDueDate(dueDate) {
     return dueDate || "No due date";
   }
@@ -20,10 +24,11 @@ class TodoManager {
     this.todoItemFormatter = todoItemFormatter;
   }
 
-  addTodo(task, dueDate) {
+  addTodo(task, dueDate, remark) {
     const newTodo = {
       id: this.getRandomId(),
-      task: this.todoItemFormatter.formatTask(task),
+      task: task,
+      remark: remark,
       dueDate: this.todoItemFormatter.formatDueDate(dueDate),
       completed: false,
       status: "pending",
@@ -93,6 +98,7 @@ class UIManager {
     this.todoManager = todoManager;
     this.todoItemFormatter = todoItemFormatter;
     this.taskInput = document.querySelector("input");
+    this.remarkInput = document.querySelector(".input-remark");
     this.dateInput = document.querySelector(".schedule-date");
     this.addBtn = document.querySelector(".add-task-button");
     this.todosListBody = document.querySelector(".todos-list-body");
@@ -115,6 +121,11 @@ class UIManager {
               this.handleAddTodo();
           }
       });
+      this.remarkInput.addEventListener("keyup", (e) => {
+          if (e.keyCode === 13 && this.remarkInput.value.length > 0) {
+              this.handleAddTodo();
+          }
+      });
 
       // Event listener for deleting all todos
       this.deleteAllBtn.addEventListener("click", () => {
@@ -133,13 +144,15 @@ class UIManager {
 
   handleAddTodo() {
     const task = this.taskInput.value;
+    const remark = this.remarkInput.value;
     const dueDate = this.dateInput.value;
     if (task === "") {
       this.showAlertMessage("Please enter a task", "error");
     } else {
-      const newTodo = this.todoManager.addTodo(task, dueDate);
+      const newTodo = this.todoManager.addTodo(task, dueDate, remark);
       this.showAllTodos();
       this.taskInput.value = "";
+      this.remarkInput.value = "";
       this.dateInput.value = "";
       this.showAlertMessage("Task added successfully", "success");
     }
@@ -168,7 +181,7 @@ class UIManager {
       todos.forEach((todo) => {
         this.todosListBody.innerHTML += `
           <tr class="todo-item" data-id="${todo.id}">
-            <td>${this.todoItemFormatter.formatTask(todo.task)}</td>
+            <td>${this.todoItemFormatter.formatTask(todo.task)}${this.todoItemFormatter.formatRemark(todo.remark)}</td>
             <td>${this.todoItemFormatter.formatDueDate(todo.dueDate)}</td>
             <td>${this.todoItemFormatter.formatStatus(todo.completed)}</td>
             <td>
@@ -199,6 +212,7 @@ handleEditTodo(id) {
   const todo = this.todoManager.todos.find((t) => t.id === id);
   if (todo) {
     this.taskInput.value = todo.task;
+    this.remarkInput.value = todo.remark;
     this.todoManager.deleteTodo(id);
 
     const handleUpdate = () => {
