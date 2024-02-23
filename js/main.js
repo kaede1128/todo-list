@@ -329,7 +329,7 @@ class GoogleAppsScript {
 		console.info(todo)
 		$.ajax({
             method: "POST",
-			data: todo,
+			data: JSON.stringify(todo),
 			url: `https://script.google.com/macros/s/${this.GoogleAppsScriptId}/exec`,
 			success: function(response) {
 				if(response == "存入成功"){
