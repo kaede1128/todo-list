@@ -307,7 +307,7 @@ class ThemeSwitcher {
 
 class GoogleAppsScript {
 	constructor() {
-		this.GoogleAppsScriptId = "AKfycbzQHn194mT2g9_0fjNlDm6HfXer4ZXlEWIDcWc9YTAuzoRJgWtt71NZUxYpIpEE_Vlp9w"
+		this.GoogleAppsScriptId = "AKfycbztghBRjz51Pa6r9ONncPaj5yEChcs5-Lb8wBOhPYpwYg10mMIzfCVdLz2BpmOfwOCURQ"
 		this.GoogleSheetId = "1PmSGaEcacXDKymvkgW3oqEdRyIG2OJ8KyWVbXZXhuqI"
 
 	}
@@ -328,7 +328,7 @@ class GoogleAppsScript {
 		todo.SpreadsheetId = this.GoogleSheetId
 		console.info(todo)
 		$.ajax({
-            method: "GET",
+            method: "POST",
 			data: todo,
 			url: `https://script.google.com/macros/s/${this.GoogleAppsScriptId}/exec`,
 			success: function(response) {
