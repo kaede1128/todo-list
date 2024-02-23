@@ -1,4 +1,3 @@
-import gs from "gs.js"
 // Abstract class for TodoItemFormatter
 class TodoItemFormatter {
     formatTask(task) {
