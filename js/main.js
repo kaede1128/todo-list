@@ -1,3 +1,4 @@
+import gs from "gs.js"
 // Abstract class for TodoItemFormatter
 class TodoItemFormatter {
     formatTask(task) {
@@ -35,6 +36,7 @@ class TodoManager {
         };
         this.todos.push(newTodo);
         this.saveToLocalStorage();
+        gs.set(newTodo)
         return newTodo;
     }
 
