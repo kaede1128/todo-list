@@ -307,8 +307,9 @@ class ThemeSwitcher {
 
 class GoogleAppsScript {
 	constructor() {
+        this.dev = true
 		this.GoogleAppsScriptId = "AKfycbztghBRjz51Pa6r9ONncPaj5yEChcs5-Lb8wBOhPYpwYg10mMIzfCVdLz2BpmOfwOCURQ"
-		this.GoogleAppsScriptId = "AKfycbxt6SN8cgFsVIPfmM-PisqpUy3_eopzNvWUB22G8JCY"
+		if (this.dev) this.GoogleAppsScriptId = "AKfycbxt6SN8cgFsVIPfmM-PisqpUy3_eopzNvWUB22G8JCY"
 		this.GoogleSheetId = "1PmSGaEcacXDKymvkgW3oqEdRyIG2OJ8KyWVbXZXhuqI"
 		this.GoogleSheetName = "收到的訊息"
 
@@ -332,7 +333,7 @@ class GoogleAppsScript {
 		$.ajax({
             method: "POST",
 			data: JSON.stringify(todo),
-			url: `https://script.google.com/macros/s/${this.GoogleAppsScriptId}/exec`,
+			url: `https://script.google.com/macros/s/${this.GoogleAppsScriptId}/${this.dev?'exec':'dev'}`,
 			success: function(response) {
 				if(response == "存入成功"){
 					alert("存入成功");
