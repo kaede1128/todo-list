@@ -4,10 +4,10 @@ export default class gs {
 		this.GoogleSheetId = "1PmSGaEcacXDKymvkgW3oqEdRyIG2OJ8KyWVbXZXhuqI"
 
 	}
-	get() {
+	static get() {
 
 	}
-	set(todo = {}) {
+	static set(todo = {}) {
 		/* todo
 		id: this.getRandomId(),
         task: task,
