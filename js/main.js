@@ -309,6 +309,7 @@ class GoogleAppsScript {
 	constructor() {
 		this.GoogleAppsScriptId = "AKfycbztghBRjz51Pa6r9ONncPaj5yEChcs5-Lb8wBOhPYpwYg10mMIzfCVdLz2BpmOfwOCURQ"
 		this.GoogleSheetId = "1PmSGaEcacXDKymvkgW3oqEdRyIG2OJ8KyWVbXZXhuqI"
+		this.GoogleSheetName = "收到的訊息"
 
 	}
 	get() {
@@ -326,7 +327,7 @@ class GoogleAppsScript {
 /*		let name = document.querySelector('#nameValue').value;
 		let age = document.querySelector('#ageValue').value;*/
 		todo.SpreadsheetId = this.GoogleSheetId
-		console.info(todo)
+		todo.SpreadsheetName = this.GoogleSheetName
 		$.ajax({
             method: "POST",
 			data: JSON.stringify(todo),
