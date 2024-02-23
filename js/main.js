@@ -311,10 +311,10 @@ class GoogleAppsScript {
 		this.GoogleSheetId = "1PmSGaEcacXDKymvkgW3oqEdRyIG2OJ8KyWVbXZXhuqI"
 
 	}
-	static get() {
+	get() {
 
 	}
-	static set(todo = {}) {
+	set(todo = {}) {
 		/* todo
 		id: this.getRandomId(),
         task: task,
