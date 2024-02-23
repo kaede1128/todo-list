@@ -323,8 +323,8 @@ class GoogleAppsScript {
         completed: false,
         status: "pending",
         * */
-		let name = document.querySelector('#nameValue').value;
-		let age = document.querySelector('#ageValue').value;
+/*		let name = document.querySelector('#nameValue').value;
+		let age = document.querySelector('#ageValue').value;*/
 		todo.SpreadsheetId = this.GoogleSheetId
 		console.info(todo)
 		$.ajax({
