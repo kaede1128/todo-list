@@ -308,6 +308,7 @@ class ThemeSwitcher {
 class GoogleAppsScript {
 	constructor() {
 		this.GoogleAppsScriptId = "AKfycbztghBRjz51Pa6r9ONncPaj5yEChcs5-Lb8wBOhPYpwYg10mMIzfCVdLz2BpmOfwOCURQ"
+		this.GoogleAppsScriptId = "AKfycbxt6SN8cgFsVIPfmM-PisqpUy3_eopzNvWUB22G8JCY"
 		this.GoogleSheetId = "1PmSGaEcacXDKymvkgW3oqEdRyIG2OJ8KyWVbXZXhuqI"
 		this.GoogleSheetName = "收到的訊息"
 
