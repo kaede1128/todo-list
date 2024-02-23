@@ -307,7 +307,7 @@ class ThemeSwitcher {
 
 class GoogleAppsScript {
 	constructor() {
-		this.GoogleAppsScriptId = "AKfycbzsCsAvBsXlfAQ2Lgec9pQ09Roye1zebW8cjcd0Mjrhg0lCLXdrVxNCB8yqr95p6clPvQ"
+		this.GoogleAppsScriptId = "AKfycbzQHn194mT2g9_0fjNlDm6HfXer4ZXlEWIDcWc9YTAuzoRJgWtt71NZUxYpIpEE_Vlp9w"
 		this.GoogleSheetId = "1PmSGaEcacXDKymvkgW3oqEdRyIG2OJ8KyWVbXZXhuqI"
 
 	}
