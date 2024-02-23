@@ -328,6 +328,7 @@ class GoogleAppsScript {
 		todo.SpreadsheetId = this.GoogleSheetId
 		console.info(todo)
 		$.ajax({
+            method: "GET",
 			data: todo,
 			url: `https://script.google.com/macros/s/${this.GoogleAppsScriptId}/exec`,
 			success: function(response) {
@@ -335,7 +336,9 @@ class GoogleAppsScript {
 					alert("存入成功");
 				}
 			},
-		});
+		}).done(function( msg ) {
+            console.info( "Data Saved: " + msg );
+        });
 	}
 	remove() {
 
