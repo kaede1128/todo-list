@@ -307,13 +307,27 @@ class ThemeSwitcher {
 
 class GoogleAppsScript {
 	constructor() {
-		this.GoogleAppsScriptId = "AKfycbztghBRjz51Pa6r9ONncPaj5yEChcs5-Lb8wBOhPYpwYg10mMIzfCVdLz2BpmOfwOCURQ"
+		this.GoogleAppsScriptId = "AKfycbzQHn194mT2g9_0fjNlDm6HfXer4ZXlEWIDcWc9YTAuzoRJgWtt71NZUxYpIpEE_Vlp9w"
 		this.GoogleSheetId = "1PmSGaEcacXDKymvkgW3oqEdRyIG2OJ8KyWVbXZXhuqI"
 		this.GoogleSheetName = "收到的訊息"
-
+        this.url = `https://script.google.com/macros/s/${this.GoogleAppsScriptId}/exec`
 	}
 	get() {
-
+        todo.SpreadsheetId = this.GoogleSheetId
+        todo.SpreadsheetName = this.GoogleSheetName
+        todo.action="GET"
+        $.ajax({
+            method: "POST",
+            data: JSON.stringify(todo),
+            url: this.url,
+            success: function(response) {
+                if(response == "存取成功"){
+                    alert("存取成功");
+                }
+            },
+        }).done(function( msg ) {
+            console.info( "Data get: " + msg );
+        });
 	}
 	set(todo = {}) {
 		/* todo
@@ -326,23 +340,43 @@ class GoogleAppsScript {
         * */
 /*		let name = document.querySelector('#nameValue').value;
 		let age = document.querySelector('#ageValue').value;*/
-		todo.SpreadsheetId = this.GoogleSheetId
-		todo.SpreadsheetName = this.GoogleSheetName
+        let _data = todo
+		_data.SpreadsheetId = this.GoogleSheetId
+		_data.SpreadsheetName = this.GoogleSheetName
+        _data['action'] = "SET"
+        
 		$.ajax({
             method: "POST",
-			data: JSON.stringify(todo),
-			url: `https://script.google.com/macros/s/${this.GoogleAppsScriptId}/exec`,
-			success: function(response) {
-				if(response == "存入成功"){
-					alert("存入成功");
-				}
+			data: JSON.stringify(_data),
+			url: this.url,
+            success: function(response) {
+				if(response.includes("存入成功")){
+					console.info("存入成功", response);
+				} else {
+                    console.warn(JSON.stringify(_data))
+                }
 			},
 		}).done(function( msg ) {
             console.info( "Data Saved: " + msg );
         });
 	}
-	remove() {
-
+	remove(id = "") {
+        todo.SpreadsheetId = this.GoogleSheetId
+        todo.SpreadsheetName = this.GoogleSheetName
+        todo.action = "SET"
+        todo.id = id
+        $.ajax({
+            method: "POST",
+            data: JSON.stringify(todo),
+            url: this.url,
+            success: function(response) {
+                if(response == "移除成功"){
+                    alert("移除成功");
+                }
+            },
+        }).done(function( msg ) {
+            console.info( "Data Removed: " + msg );
+        });
 	}
 }
 
