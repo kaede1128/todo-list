@@ -340,21 +340,17 @@ class GoogleAppsScript {
         * */
 /*		let name = document.querySelector('#nameValue').value;
 		let age = document.querySelector('#ageValue').value;*/
-        let _data = todo
-		_data.SpreadsheetId = this.GoogleSheetId
-		_data.SpreadsheetName = this.GoogleSheetName
-        _data['action'] = "SET"
-        
+		todo.SpreadsheetId = this.GoogleSheetId
+		todo.SpreadsheetName = this.GoogleSheetName
+        todo.action = "SET"
 		$.ajax({
             method: "POST",
-			data: JSON.stringify(_data),
+			data: JSON.stringify(todo),
 			url: this.url,
-            success: function(response) {
-				if(response.includes("存入成功")){
-					console.info("存入成功", response);
-				} else {
-                    console.warn(JSON.stringify(_data))
-                }
+			success: function(response) {
+				if(response == "存入成功"){
+					alert("存入成功");
+				}
 			},
 		}).done(function( msg ) {
             console.info( "Data Saved: " + msg );
@@ -363,7 +359,7 @@ class GoogleAppsScript {
 	remove(id = "") {
         todo.SpreadsheetId = this.GoogleSheetId
         todo.SpreadsheetName = this.GoogleSheetName
-        todo.action = "SET"
+        todo.action = "DEL"
         todo.id = id
         $.ajax({
             method: "POST",
