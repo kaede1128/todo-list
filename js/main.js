@@ -21,6 +21,8 @@ class TodoItemFormatter {
 class TodoManager {
     constructor(todoItemFormatter) {
         this.todos = JSON.parse(localStorage.getItem("todos")) || [];
+        console.info("init Google Actions Script")
+        console.info(gs.get())
         this.todoItemFormatter = todoItemFormatter;
     }
 
@@ -313,14 +315,13 @@ class GoogleAppsScript {
         this.url = `https://script.google.com/macros/s/${this.GoogleAppsScriptId}/exec`
 	}
 	get() {
-        todo.SpreadsheetId = this.GoogleSheetId
-        todo.SpreadsheetName = this.GoogleSheetName
-        todo.action="GET"
         $.ajax({
             method: "POST",
-            data: JSON.stringify(todo),
+            data: JSON.stringify({ action: "GET" }),
             url: this.url,
             success: function(response) {
+                console.info(JSON.parse(response))
+                // response: JSON.stringify(result)
                 if(response == "存取成功"){
                     alert("存取成功");
                 }
@@ -344,11 +345,13 @@ class GoogleAppsScript {
 		todo.SpreadsheetName = this.GoogleSheetName
         todo.action = "SET"
 		$.ajax({
-            method: "POST",
+            method: 'POST',
 			data: JSON.stringify(todo),
 			url: this.url,
 			success: function(response) {
-				if(response == "存入成功"){
+                console.info(response)
+                // response: success#<getMaxRows>
+				if(response == "success#"){
 					alert("存入成功");
 				}
 			},
@@ -379,10 +382,10 @@ class GoogleAppsScript {
 
 
 // Instantiating the classes
+const gs = new GoogleAppsScript();
 const todoItemFormatter = new TodoItemFormatter();
 const todoManager = new TodoManager(todoItemFormatter);
 const uiManager = new UIManager(todoManager, todoItemFormatter);
 const themes = document.querySelectorAll(".theme-item");
 const html = document.querySelector("html");
 const themeSwitcher = new ThemeSwitcher(themes, html);
-const gs = new GoogleAppsScript();
