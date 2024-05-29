@@ -309,7 +309,7 @@ class GoogleAppsScript {
 	constructor() {
 		this.GoogleAppsScriptId = "AKfycbzQHn194mT2g9_0fjNlDm6HfXer4ZXlEWIDcWc9YTAuzoRJgWtt71NZUxYpIpEE_Vlp9w"
 		this.GoogleSheetId = "1PmSGaEcacXDKymvkgW3oqEdRyIG2OJ8KyWVbXZXhuqI"
-		this.GoogleSheetName = "收到的訊息"
+		this.GoogleSheetName = "todolist"
         this.url = `https://script.google.com/macros/s/${this.GoogleAppsScriptId}/exec`
 	}
 	get() {
