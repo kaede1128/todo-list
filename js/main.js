@@ -250,6 +250,7 @@ class UIManager {
 
 
     showAlertMessage(message, type) {
+    /* type<string>: info success warning error */
         const alertBox = `
   <div class="alert alert-${type} shadow-lg mb-5 w-full">
     <div>
@@ -321,9 +322,12 @@ class GoogleAppsScript {
             url: this.url,
             success: function(response) {
                 console.info(JSON.parse(response))
+                console.info(todoManager.todos)
                 // response: JSON.stringify(result)
-                if(response == "存取成功"){
-                    alert("存取成功");
+                if(response || response == []){
+                    uiManager.showAlertMessage("Spreadsheet data loaded", "success");
+                } else {
+                    uiManager.showAlertMessage("Spreadsheet No Data", "info");
                 }
             },
         }).done(function( msg ) {
@@ -351,9 +355,12 @@ class GoogleAppsScript {
 			success: function(response) {
                 console.info(response)
                 // response: success#<getMaxRows>
-				if(response == "success#"){
-					alert("存入成功");
-				}
+				if(response.includes( "success#")){
+                    let last = response.substring(response.indexOf("#"))
+					uiManager.showAlertMessage("Inserted to Spreadsheet row #" + last, "success");
+                } else {
+                    uiManager.showAlertMessage("Inserted to Spreadsheet failed" + last, "error");
+                }
 			},
 		}).done(function( msg ) {
             console.info( "Data Saved: " + msg );
