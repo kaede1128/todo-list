@@ -24,11 +24,17 @@ class TodoManager {
         console.info("init Google Actions Script")
         console.info(gs.get())
         this.todoItemFormatter = todoItemFormatter;
+        this.editId = ""
     }
 
     addTodo(task, dueDate, remark) {
+        let id = this.getRandomId()
+        if (this.editId) {
+            id = this.editId
+            this.editId = ""
+        }
         const newTodo = {
-            id: this.getRandomId(),
+            id: id,
             task: task,
             remark: remark,
             dueDate: this.todoItemFormatter.formatDueDate(dueDate),
@@ -53,12 +59,15 @@ class TodoManager {
     deleteTodo(id) {
         this.todos = this.todos.filter((todo) => todo.id !== id);
         this.saveToLocalStorage();
+        gs.remove(id)
     }
 
     toggleTodoStatus(id) {
         const todo = this.todos.find((t) => t.id === id);
         if (todo) {
             todo.completed = !todo.completed;
+            gs.remove(todo.id)
+            gs.set(todo)
             this.saveToLocalStorage();
         }
     }
@@ -67,6 +76,7 @@ class TodoManager {
         if (this.todos.length > 0) {
             this.todos = [];
             this.saveToLocalStorage();
+            gs.remove("REMOVE_ALL")
         }
     }
 
@@ -217,6 +227,7 @@ class UIManager {
             this.taskInput.value = todo.task;
             this.remarkInput.value = todo.remark;
             this.todoManager.deleteTodo(id);
+            this.editId = id
 
             const handleUpdate = () => {
                 this.addBtn.innerHTML = "<i class='bx bx-plus bx-sm'></i>";
@@ -232,6 +243,7 @@ class UIManager {
 
 
     handleToggleStatus(id) {
+        todoManager.editId = id
         this.todoManager.toggleTodoStatus(id);
         this.showAllTodos();
     }
@@ -251,6 +263,7 @@ class UIManager {
 
     showAlertMessage(message, type) {
     /* type<string>: info success warning error */
+        console.info(`[!!!] ${type}:`, message)
         const alertBox = `
   <div class="alert alert-${type} shadow-lg mb-5 w-full">
     <div>
@@ -316,13 +329,17 @@ class GoogleAppsScript {
         this.url = `https://script.google.com/macros/s/${this.GoogleAppsScriptId}/exec`
 	}
 	get() {
+        let todo = {}
+		todo.SpreadsheetId = this.GoogleSheetId
+		todo.SpreadsheetName = this.GoogleSheetName
+        todo.action = "GET"
         $.ajax({
             method: "POST",
-            data: JSON.stringify({ action: "GET" }),
+            data: JSON.stringify(todo),
             url: this.url,
             success: function(response) {
-                console.info(JSON.parse(response))
-                console.info(todoManager.todos)
+                // console.info(JSON.parse(response))
+                // console.info(todoManager.todos)
                 // response: JSON.stringify(result)
                 if(response || response == []){
                     uiManager.showAlertMessage("Spreadsheet data loaded", "success");
@@ -335,6 +352,7 @@ class GoogleAppsScript {
         });
 	}
 	set(todo = {}) {
+        console.info("send google action script request <set>")
 		/* todo
 		id: this.getRandomId(),
         task: task,
@@ -356,10 +374,10 @@ class GoogleAppsScript {
                 console.info(response)
                 // response: success#<getMaxRows>
 				if(response.includes( "success#")){
-                    let last = response.substring(response.indexOf("#"))
+                    let last = response.substring(response.indexOf("#")+1)
 					uiManager.showAlertMessage("Inserted to Spreadsheet row #" + last, "success");
                 } else {
-                    uiManager.showAlertMessage("Inserted to Spreadsheet failed" + last, "error");
+                    uiManager.showAlertMessage("Insert to Spreadsheet failed #" + todo.id, "error");
                 }
 			},
 		}).done(function( msg ) {
@@ -367,8 +385,10 @@ class GoogleAppsScript {
         });
 	}
 	remove(id = "") {
-        todo.SpreadsheetId = this.GoogleSheetId
-        todo.SpreadsheetName = this.GoogleSheetName
+        /* <string> id | "REMOVE_ALL" */
+        let todo = {}
+		todo.SpreadsheetId = this.GoogleSheetId
+		todo.SpreadsheetName = this.GoogleSheetName
         todo.action = "DEL"
         todo.id = id
         $.ajax({
@@ -376,8 +396,13 @@ class GoogleAppsScript {
             data: JSON.stringify(todo),
             url: this.url,
             success: function(response) {
-                if(response == "移除成功"){
-                    alert("移除成功");
+                console.info(response)
+                // response: remove#<getMaxRows>
+				if(response.includes( "remove")){
+                    let last = response.substring(response.indexOf("#")+1)
+					uiManager.showAlertMessage("Removed Spreadsheet row #" + last, "success");
+                } else {
+                    uiManager.showAlertMessage("Remove Spreadsheet failed #" + id, "error");
                 }
             },
         }).done(function( msg ) {
