@@ -184,19 +184,19 @@ class UIManager {
         todos.forEach((todo) => {
             this.todosListBody.innerHTML += `
           <tr class="todo-item" data-id="${todo.id}">
-            <td>${this.todoItemFormatter.formatTask(todo.task)}${this.todoItemFormatter.formatRemark(todo.remark)}</td>
-            <td>${this.todoItemFormatter.formatDueDate(todo.dueDate)}</td>
-            <td>${this.todoItemFormatter.formatStatus(todo.completed)}</td>
-            <td>
+            <td class="${todo.completed? "bg-base-300" : ""}">${this.todoItemFormatter.formatTask(todo.task)}${this.todoItemFormatter.formatRemark(todo.remark)}</td>
+            <td class="${todo.completed? "bg-base-300" : ""}">${this.todoItemFormatter.formatDueDate(todo.dueDate)}</td>
+            <td class="${todo.completed? "bg-base-300" : ""}">${this.todoItemFormatter.formatStatus(todo.completed)}</td>
+            <td class="${todo.completed? "bg-base-300" : ""}">
               <button class="btn btn-warning btn-sm" onclick="uiManager.handleEditTodo('${
                 todo.id
             }')">
                 <i class="bx bx-edit-alt bx-bx-xs"></i>    
               </button>
-              <button class="btn btn-success btn-sm" onclick="uiManager.handleToggleStatus('${
+              <button class="btn ${todo.completed? "" : "btn-success"} btn-sm" onclick="uiManager.handleToggleStatus('${
                 todo.id
             }')">
-                <i class="bx bx-check bx-xs"></i>
+                <i class="bx bx-${todo.completed? "reset" : "check"} bx-xs"></i>
               </button>
               <button class="btn btn-error btn-sm" onclick="uiManager.handleDeleteTodo('${
                 todo.id
