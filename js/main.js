@@ -29,17 +29,23 @@ class TodoManager {
 
     addTodo(task, dueDate, remark) {
         let id = this.getRandomId()
+        let completed = false
+        let status = "pending"
         if (this.editId) {
             id = this.editId
+            const todo = this.todos.find((t) => t.id === id);
+            completed = todo.completed ?? false
+            status = todo.completed ? "completed" : "pending"
             this.editId = ""
+            this.todos = this.todos.filter((todo) => todo.id !== id);
         }
         const newTodo = {
             id: id,
             task: task,
             remark: remark,
             dueDate: this.todoItemFormatter.formatDueDate(dueDate),
-            completed: false,
-            status: "pending",
+            completed: completed,
+            status: status,
         };
         this.todos.push(newTodo);
         this.saveToLocalStorage();
@@ -66,7 +72,8 @@ class TodoManager {
         const todo = this.todos.find((t) => t.id === id);
         if (todo) {
             todo.completed = !todo.completed;
-            gs.remove(todo.id)
+            todo.status = todo.completed ? "completed" : "pending";
+            // gs.remove(todo.id)
             gs.set(todo)
             this.saveToLocalStorage();
         }
@@ -81,6 +88,7 @@ class TodoManager {
     }
 
     filterTodos(status) {
+        console.info("filter:", status)
         switch (status) {
             case "all":
                 return this.todos;
@@ -95,12 +103,17 @@ class TodoManager {
 
     getRandomId() {
         return (
+            +new Date + "@" +
             Math.random().toString(36).substring(2, 15) +
             Math.random().toString(36).substring(2, 15)
         );
     }
 
     saveToLocalStorage() {
+        let _timestamp = (v) => {
+            return v.substring(0, v.indexOf('@'))
+        }
+        this.todos.sort((a, b) => _timestamp(b.id) - _timestamp(a.id))
         localStorage.setItem("todos", JSON.stringify(this.todos));
     }
 }
@@ -226,8 +239,8 @@ class UIManager {
         if (todo) {
             this.taskInput.value = todo.task;
             this.remarkInput.value = todo.remark;
-            this.todoManager.deleteTodo(id);
-            this.editId = id
+            // this.todoManager.deleteTodo(id);
+            this.todoManager.editId = id
 
             const handleUpdate = () => {
                 this.addBtn.innerHTML = "<i class='bx bx-plus bx-sm'></i>";
@@ -243,7 +256,7 @@ class UIManager {
 
 
     handleToggleStatus(id) {
-        todoManager.editId = id
+        this.todoManager.editId = id
         this.todoManager.toggleTodoStatus(id);
         this.showAllTodos();
     }
@@ -283,10 +296,56 @@ class UIManager {
 
 // Class responsible for managing the theme switcher
 class ThemeSwitcher {
-    constructor(themes, html) {
+    constructor(themesListRoot, themes, html) {
+        this._themes = [
+          "light",
+          "dark",
+          "cupcake",
+          "bumblebee",
+          // "emerald",
+          // "corporate",
+          "synthwave",
+          // "retro",
+          // "cyberpunk",
+          // "valentine",
+          "halloween",
+          // "garden",
+          // "forest",
+          "aqua",
+          // "lofi",
+          // "pastel",
+          "fantasy",
+          // "wireframe",
+          // "black",
+          "luxury",
+          "dracula",
+          // "cmyk",
+          // "autumn",
+          // "business",
+          // "acid",
+          // "lemonade",
+          "night",
+          // "coffee",
+          // "winter",
+          // "dim",
+          // "nord",
+          // "sunset",
+        ]
+        this._themes.push("black", "realdark")
         this.themes = themes;
+        this.buildThemesMenu(themesListRoot)
         this.html = html;
         this.init();
+    }
+
+    buildThemesMenu(themesListRoot) {
+        if (themesListRoot) {
+            themesListRoot.innerHTML = ""
+            this._themes.forEach( v =>{
+                themesListRoot.innerHTML += `<li class="theme-item" theme="${v}"><a>${v}</a></li>`
+            })
+        }
+        this.themes = document.querySelectorAll(".theme-item")
     }
 
     init() {
@@ -329,6 +388,7 @@ class GoogleAppsScript {
         this.url = `https://script.google.com/macros/s/${this.GoogleAppsScriptId}/exec`
 	}
 	get() {
+        console.info("send google action script request <get>")
         let todo = {}
 		todo.SpreadsheetId = this.GoogleSheetId
 		todo.SpreadsheetName = this.GoogleSheetName
@@ -384,8 +444,12 @@ class GoogleAppsScript {
             console.info( "Data Saved: " + msg );
         });
 	}
+    edit(todo = {}) {
+        console.info("send google action script request <set>")
+    }
 	remove(id = "") {
         /* <string> id | "REMOVE_ALL" */
+        console.info("send google action script request <del>")
         let todo = {}
 		todo.SpreadsheetId = this.GoogleSheetId
 		todo.SpreadsheetName = this.GoogleSheetName
@@ -418,6 +482,7 @@ const gs = new GoogleAppsScript();
 const todoItemFormatter = new TodoItemFormatter();
 const todoManager = new TodoManager(todoItemFormatter);
 const uiManager = new UIManager(todoManager, todoItemFormatter);
+const themesListRoot = document.querySelector(".theme-switcher .dropdown ul");
 const themes = document.querySelectorAll(".theme-item");
 const html = document.querySelector("html");
-const themeSwitcher = new ThemeSwitcher(themes, html);
+const themeSwitcher = new ThemeSwitcher(themesListRoot, themes, html);
