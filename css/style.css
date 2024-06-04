@@ -67,9 +67,11 @@ header h1 {
 }
 
 .alert-message{
-    width: 100%;
+    max-width: 100%;
     transition: all 0.3s ease;
     transform: scale(0.9);
+    position: fixed;
+    top: 0;
 }
 
 .alert-message.show{

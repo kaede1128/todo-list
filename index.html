@@ -6,16 +6,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <!-- CSS -->
-    <link rel="stylesheet" href="css/style.css" type="text/css" >
+    <link rel="stylesheet" href="css/style.css" type="text/css" />
 
     <!--- Tailwind CSS & Daisy UI CSS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.11.1/dist/full.css" rel="stylesheet" type="text/css" />
     <link href="https://cdn.jsdelivr.net/npm/daisyui@2.18.0/dist/full.css" rel="stylesheet" type="text/css" />
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2/dist/tailwind.min.css" rel="stylesheet" type="text/css" />
     <link href='https://unpkg.com/boxicons@2.1.2/css/boxicons.min.css' rel='stylesheet'>
 
     <!-- Extend CSS -->
-    <link rel="stylesheet" href="css/custom-themes.css" rel="stylesheet" type="text/css" >
+    <link rel="stylesheet" href="css/custom-themes.css" rel="stylesheet" type="text/css" />
 
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="res/favicon.ico">
@@ -23,6 +24,8 @@
     <title>TO-DOIT</title>
 </head>
 <body>
+    <!-- Error message -->
+    <div class="alert-message m-1"></div>
 
     <!-- Copyright -->
     <footer>
@@ -35,9 +38,8 @@
     <div class="container">
         <header>
             <h1></h1>
-            <!-- Error message -->
-            <div class="alert-message"></div>
             <div class="input-section">
+
                 <input type="text" placeholder="Add a todo . . ." class="input input-bordered input-secondary w-full max-w-xs" />
                 <input type="text" placeholder="Remark" class="input input-bordered input-secondary w-full max-w-xs input-remark" />
                 <input type="date" class="input input-bordered input-secondary w-full max-w-xs schedule-date" />
@@ -49,7 +51,12 @@
 
         <div class="todos-filter">
             <div class="dropdown">
-                <label tabindex="0" class="btn m-1">Filter</label>
+                <label tabindex="0" class="btn swap swap-rotate m-1">
+                    <i class='swap-off bx bx-filter bx-sm'/></i>
+<!--                    <span class="swap-on loading loading-spinner loading-sm"></span>-->
+                    <i class='swap-on bx bx-dots-horizontal bx-sm'></i>
+<!--                    <i class='swap-on bx bxs-cog bx-sm'></i>-->
+                </label>
                 <ul tabindex="0" class="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52">
                     <li onclick="todoManager.filterTodos('all')"><a>All</a></li>
                     <li onclick="todoManager.filterTodos('pending')"><a>Pending</a></li>

@@ -486,3 +486,7 @@ const themesListRoot = document.querySelector(".theme-switcher .dropdown ul");
 const themes = document.querySelectorAll(".theme-item");
 const html = document.querySelector("html");
 const themeSwitcher = new ThemeSwitcher(themesListRoot, themes, html);
+
+document.querySelectorAll(".swap").forEach(v => {
+    v.addEventListener("click", () => { v.classList.toggle("swap-active") })
+})
