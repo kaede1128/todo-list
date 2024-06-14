@@ -22,7 +22,6 @@ class TodoManager {
     constructor(todoItemFormatter) {
         this.todos = JSON.parse(localStorage.getItem("todos")) || [];
         console.info("init Google Actions Script")
-        console.info(gs.get())
         this.todoItemFormatter = todoItemFormatter;
         this.editId = ""
     }
@@ -116,6 +115,18 @@ class TodoManager {
         this.todos.sort((a, b) => _timestamp(b.id) - _timestamp(a.id))
         localStorage.setItem("todos", JSON.stringify(this.todos));
     }
+
+    cloudImport() {
+        gs.get( (v)=>{
+            this.todos = JSON.parse(v)
+            console.warn(JSON.parse(v))
+            uiManager.displayTodos(this.todos)
+        } )
+    }
+    cloudExport() {
+        // gs.set(JSON.parse(localStorage.getItem("todos")))
+	    exportAs.txt(JSON.parse(localStorage.getItem("todos")))
+    }
 }
 
 // Class responsible for managing the UI and handling events
@@ -159,11 +170,20 @@ class UIManager {
         });
 
         // Event listeners for filter buttons
+        const filterMenuButton = document.querySelectorAll(".grid .dropdown .swap");
         const filterButtons = document.querySelectorAll(".todos-filter li");
         filterButtons.forEach((button) => {
             button.addEventListener("click", () => {
                 const status = button.textContent.toLowerCase();
                 this.handleFilterTodos(status);
+                if (status !== "all") {
+                    console.info("notice")
+                    if (!filterMenuButton[0].classList.contains("notice"))
+                    filterMenuButton[0].classList.add("notice")
+                } else {
+                    if (filterMenuButton[0].classList.contains("notice"))
+                    filterMenuButton[0].classList.remove("notice")
+                }
             });
         });
     }
@@ -278,12 +298,12 @@ class UIManager {
     /* type<string>: info success warning error */
         console.info(`[!!!] ${type}:`, message)
         const alertBox = `
-  <div class="alert alert-${type} shadow-lg mb-5 w-full">
-    <div>
-      <span>${message}</span>
-    </div>
-  </div>
-`;
+          <div class="alert alert-${type} shadow-lg mb-5 w-full">
+            <div>
+              <span>${message}</span>
+            </div>
+          </div>
+        `;
         this.alertMessage.innerHTML = alertBox;
         this.alertMessage.classList.remove("hide");
         this.alertMessage.classList.add("show");
@@ -387,7 +407,8 @@ class GoogleAppsScript {
 		this.GoogleSheetName = "todolist"
         this.url = `https://script.google.com/macros/s/${this.GoogleAppsScriptId}/exec`
 	}
-	get() {
+    get(cb) {
+        loading(true)
         console.info("send google action script request <get>")
         let todo = {}
 		todo.SpreadsheetId = this.GoogleSheetId
@@ -406,12 +427,16 @@ class GoogleAppsScript {
                 } else {
                     uiManager.showAlertMessage("Spreadsheet No Data", "info");
                 }
+                return response
             },
         }).done(function( msg ) {
+            loading(false)
             console.info( "Data get: " + msg );
+            if (cb && typeof cb === 'function') { cb(msg) }
         });
 	}
 	set(todo = {}) {
+        loading(true)
         console.info("send google action script request <set>")
 		/* todo
 		id: this.getRandomId(),
@@ -441,6 +466,7 @@ class GoogleAppsScript {
                 }
 			},
 		}).done(function( msg ) {
+            loading(false)
             console.info( "Data Saved: " + msg );
         });
 	}
@@ -475,10 +501,94 @@ class GoogleAppsScript {
 	}
 }
 
+class Exports {
+    constructor() {
+        // JSON
+        // XML
+        // CSV
+        // TXT
+        // Excel
+        this.BlobConfig = {
+            csv: {
+                ext: 'csv',
+                mime: 'text/csv;charset=utf-8,'
+            },
+            txt: {
+                ext: 'txt',
+                mime: 'text/plain;charset=utf-8,'
+            }
+        }
+        // MIME type	Description
+        // text/plain	Plain text document
+        // text/html	HTML document
+        // text/javascript	JavaScript file
+        // text/css	CSS file
+        // application/json	JSON file
+        // application/pdf	PDF file
+        // application/xml	XML file
+        // image/jpeg	JPEG image
+        // image/png	PNG image
+        // image/gif	GIF image
+        // image/svg+xml	SVG image
+        // audio/mpeg	MP3 file
+        // video/mpeg	MP4 file
+        this.unprint = [
+            // "id", ...
+            "SpreadsheetId",
+            "SpreadsheetName",
+            "action",
+        ]
+    }
+    pureData(_data) {
+        _data.forEach(v => {
+            this.unprint.forEach(k => delete v[k])
+        })
+        return _data
+    }
+    csv(_data) { // [{k,v}, ...]
+        _data = this.pureData(_data)
+        const titleKeys = Object.keys(_data[0])
+        const refinedData = [] // like a table
+        refinedData.push(titleKeys)
+        _data.forEach(item => { refinedData.push(Object.values(item)) })
+        let content = ''
+        refinedData.forEach(row => { content += row.join(',') + '\n' })
+        // console.info("csvContent", content)
+        this.process(content, this.BlobConfig.csv)
+    }
+    txt(_data) { // [{k,v}, ...]
+        _data = this.pureData(_data)
+        const refinedData = [] // like a table
+        const hr = '\n\n=== === ===\n\n'
+        _data.forEach(item => {
+            let temp =[]
+            Object.entries(item).forEach(value => {
+                temp.push(value.join(': '))
+            })
+            refinedData.push(temp)
+        })
+        let content = hr
+        refinedData.forEach(row => { content += row.join('\n') + hr })
+        // console.info("txtContent", content)
+        this.process(content, this.BlobConfig.txt)
+    }
+    process(blobParts, type) {
+        // return // Testing
+        const blob = new Blob([blobParts], { type: type.mime })
+        const objUrl = URL.createObjectURL(blob)
+        const link = document.createElement('a')
+        link.setAttribute('href', objUrl)
+        link.setAttribute('download', `export_${new Date().toLocaleString('en-CA',{ hour12: false }).replaceAll(/\D/g,'')}.${type.ext}`)
+        link.click()
+        // link.textContent = 'Click to Download'
+        // document.querySelector('body').append(link)
+    }
+}
 
 
 // Instantiating the classes
 const gs = new GoogleAppsScript();
+const exportAs = new Exports();
 const todoItemFormatter = new TodoItemFormatter();
 const todoManager = new TodoManager(todoItemFormatter);
 const uiManager = new UIManager(todoManager, todoItemFormatter);
@@ -487,6 +597,38 @@ const themes = document.querySelectorAll(".theme-item");
 const html = document.querySelector("html");
 const themeSwitcher = new ThemeSwitcher(themesListRoot, themes, html);
 
-document.querySelectorAll(".swap").forEach(v => {
-    v.addEventListener("click", () => { v.classList.toggle("swap-active") })
+// document.querySelectorAll(".dropdown .swap-active").forEach(v => {
+//     v.addEventListener("click", () => {
+//         console.info("clicked")
+//         if (v.classList.contains("swap-active")) v.blur()
+//     })
+// })
+
+document.querySelectorAll(".dropdown .swap").forEach(v => {
+    v.addEventListener("click", () => {
+        if (v.classList.contains("swap-active")) {
+            v.classList.remove("swap-active")
+            v.blur()
+        } else {
+            if (!v.classList.contains("swap-active")) v.classList.add("swap-active")
+        }
+    })
+    v.addEventListener("focusout", () => {
+        if (v.classList.contains("swap-active")) v.classList.remove("swap-active")
+     })
+})
+
+// loading(true) // dummy
+function loading(status) {
+    const modal_loading = document.querySelector("#modal_loading")
+    if (status)
+        modal_loading.classList.add("modal-open")
+    else
+        modal_loading.classList.remove("modal-open")
+}
+document.querySelector("#modal_loading").addEventListener("click", () => {
+    loading(false)
+})
+document.querySelector("#modal_loading").addEventListener("click", () => {
+    loading(false)
 })

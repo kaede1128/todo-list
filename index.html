@@ -10,7 +10,7 @@
 
     <!--- Tailwind CSS & Daisy UI CSS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.11.1/dist/full.css" rel="stylesheet" type="text/css" />
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.2/dist/full.css" rel="stylesheet" type="text/css" />
     <link href="https://cdn.jsdelivr.net/npm/daisyui@2.18.0/dist/full.css" rel="stylesheet" type="text/css" />
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2/dist/tailwind.min.css" rel="stylesheet" type="text/css" />
     <link href='https://unpkg.com/boxicons@2.1.2/css/boxicons.min.css' rel='stylesheet'>
@@ -49,21 +49,45 @@
             </div>
         </header>
 
-        <div class="todos-filter">
-            <div class="dropdown">
+        <div class=" w-full grid grid-cols-8 gap-1 mb-3">
+            <div class="todos-filter dropdown col-start-auto">
                 <label tabindex="0" class="btn swap swap-rotate m-1">
                     <i class='swap-off bx bx-filter bx-sm'/></i>
-<!--                    <span class="swap-on loading loading-spinner loading-sm"></span>-->
                     <i class='swap-on bx bx-dots-horizontal bx-sm'></i>
-<!--                    <i class='swap-on bx bxs-cog bx-sm'></i>-->
                 </label>
                 <ul tabindex="0" class="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52">
-                    <li onclick="todoManager.filterTodos('all')"><a>All</a></li>
-                    <li onclick="todoManager.filterTodos('pending')"><a>Pending</a></li>
-                    <li onclick="todoManager.filterTodos('completed')"><a>Completed</a></li>
+                    <li><a>All</a></li>
+                    <li><a>Pending</a></li>
+                    <li><a>Completed</a></li>
                 </ul>
             </div>
-            <button class="btn btn-secondary delete-all-btn">
+
+            <div class="dropdown dropdown-right col-start-auto">
+                <label tabindex="0" class="btn swap swap-rotate m-1">
+                    <i class='swap-off bx bxs-cog bx-sm'/></i>
+<!--                    <span class="swap-on loading loading-spinner"></span>-->
+                    <i class='swap-on bx bx-dots-horizontal bx-sm'></i>
+                </label>
+                <ul tabindex="0" class="dropdown-content menu menu-vert gap-2 p-2 shadow bg-base-100 rounded-box w-max">
+                    <li onclick="modal_sync.showModal()">
+                        <span class="btn btn-accent btn-square">
+                            <div class="tooltip" data-tip="Sync">
+                                <i class='bx bx-sm bxl-google'></i>
+<!--                            <i class='bx bx-sm bxs-cloud-download'></i> Import-->
+<!--                            <i class='bx bx-sm bxs-cloud-upload'></i> Export-->
+                            </div>
+                        </span>
+                    </li>
+                    <li onclick="modal_export.showModal()">
+                        <span class="btn btn-accent btn-square">
+                            <div class="tooltip" data-tip="Export">
+                                <i class='bx bx-sm bxs-download'></i>
+                            </div>
+                        </span>
+                    </li>
+                </ul>
+            </div>
+            <button class="btn btn-secondary delete-all-btn col-span-2 col-end-9">
                 Delete All
             </button>
         </div>
@@ -105,6 +129,50 @@
         </div>
     </div>
 
+
+    <!-- Sync Modal -->
+    <dialog id="modal_sync" class="modal modal-bottom sm:modal-middle">
+      <div class="modal-box">
+<!--        <h3 class="font-bold text-lg">Hello!</h3>-->
+<!--        <p class="py-4">Press ESC key or click the button below to close</p>-->
+          <form method="dialog">
+            <!-- if there is a button in form, it will close the modal -->
+              <div class="flex flex-row gap-4 justify-center mb-3">
+
+                  <button class="btn btn-accent btn-square" onclick="todoManager.cloudImport()">
+                      <div class="tooltip" data-tip="Import">
+                          <i class='bx bx-sm bxs-cloud-download'></i>
+                      </div>
+                  </button>
+                  <button class="btn btn-accent btn-square" onclick="todoManager.cloudExport()">
+                      <div class="tooltip" data-tip="Export">
+                          <i class='bx bx-sm bxs-cloud-upload'></i>
+                      </div>
+                  </button>
+              </div>
+            <button class="btn">Close</button>
+          </form>
+      </div>
+    </dialog>
+    <!-- Export Modal -->
+    <dialog id="modal_export" class="modal modal-bottom sm:modal-middle">
+      <div class="modal-box">
+        <h3 class="font-bold text-lg">Hello!</h3>
+        <p class="py-4">Press ESC key or click the button below to close</p>
+        <div class="modal-action">
+          <form method="dialog">
+            <!-- if there is a button in form, it will close the modal -->
+            <button class="btn">Close</button>
+            <button class="btn">Close</button>
+            <button class="btn">Close</button>
+          </form>
+        </div>
+      </div>
+    </dialog>
+    <!-- Modal -->
+    <div id="modal_loading" class="modal">
+        <span class="loading loading-spinner"></span>
+    </div>
     <!-- JS -->
     <script src="js/main.js"></script>
 
