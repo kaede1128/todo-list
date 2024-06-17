@@ -125,7 +125,7 @@ class TodoManager {
     }
     cloudExport() {
         // gs.set(JSON.parse(localStorage.getItem("todos")))
-	    exportAs.txt(JSON.parse(localStorage.getItem("todos")))
+	    // exportAs.txt(JSON.parse(localStorage.getItem("todos")))
     }
 }
 
@@ -503,6 +503,7 @@ class GoogleAppsScript {
 
 class Exports {
     constructor() {
+        this.data = JSON.parse(localStorage.getItem("todos"))
         // JSON
         // XML
         // CSV
@@ -539,7 +540,7 @@ class Exports {
             "action",
         ]
     }
-    pureData(_data) {
+    pureData(_data = this.data) {
         _data.forEach(v => {
             this.unprint.forEach(k => delete v[k])
         })
@@ -631,4 +632,14 @@ document.querySelector("#modal_loading").addEventListener("click", () => {
 })
 document.querySelector("#modal_loading").addEventListener("click", () => {
     loading(false)
+})
+document.querySelectorAll(".modal").forEach(v => {
+    v.addEventListener("click", () => {
+        v.querySelector("form .btn").click()
+    })
+})
+document.querySelectorAll(".modal-box").forEach(v => {
+    v.addEventListener("click", (e) => {
+        e.stopPropagation()
+    })
 })

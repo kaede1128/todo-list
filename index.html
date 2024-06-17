@@ -136,9 +136,9 @@
 <!--        <h3 class="font-bold text-lg">Hello!</h3>-->
 <!--        <p class="py-4">Press ESC key or click the button below to close</p>-->
           <form method="dialog">
+              <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
             <!-- if there is a button in form, it will close the modal -->
-              <div class="flex flex-row gap-4 justify-center mb-3">
-
+              <div class="flex flex-row gap-4 justify-center">
                   <button class="btn btn-accent btn-square" onclick="todoManager.cloudImport()">
                       <div class="tooltip" data-tip="Import">
                           <i class='bx bx-sm bxs-cloud-download'></i>
@@ -150,23 +150,23 @@
                       </div>
                   </button>
               </div>
-            <button class="btn">Close</button>
           </form>
       </div>
     </dialog>
     <!-- Export Modal -->
     <dialog id="modal_export" class="modal modal-bottom sm:modal-middle">
       <div class="modal-box">
-        <h3 class="font-bold text-lg">Hello!</h3>
-        <p class="py-4">Press ESC key or click the button below to close</p>
-        <div class="modal-action">
+<!--        <div class="modal-action">-->
           <form method="dialog">
+              <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
             <!-- if there is a button in form, it will close the modal -->
-            <button class="btn">Close</button>
-            <button class="btn">Close</button>
-            <button class="btn">Close</button>
+              <div class="flex flex-row gap-4 justify-center">
+                <button class="btn" onclick="exportAs.csv()">csv</button>
+                <button class="btn" onclick="exportAs.txt()">txt</button>
+              </div>
+<!--            <button class="btn" onclick="todoManager.cloudExport()">Close</button>-->
           </form>
-        </div>
+<!--        </div>-->
       </div>
     </dialog>
     <!-- Modal -->
