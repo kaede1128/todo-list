@@ -297,7 +297,7 @@ class UIManager {
             this.importsListBody.innerHTML = `<tr><td colspan="5" class="text-center">No Save found</td></tr>`;
             return;
         }
-
+        imports = imports.sort( ((a, b) => b.t - a.t))
         imports.forEach((im, i) => {
             this.importsListBody.innerHTML +=
             `<tr>
