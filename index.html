@@ -132,42 +132,72 @@
 
     <!-- Sync Modal -->
     <dialog id="modal_sync" class="modal modal-bottom sm:modal-middle">
-      <div class="modal-box">
-<!--        <h3 class="font-bold text-lg">Hello!</h3>-->
-<!--        <p class="py-4">Press ESC key or click the button below to close</p>-->
-          <form method="dialog">
-              <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
-            <!-- if there is a button in form, it will close the modal -->
-              <div class="flex flex-row gap-4 justify-center">
-                  <button class="btn btn-accent btn-square" onclick="todoManager.cloudImport()">
-                      <div class="tooltip" data-tip="Import">
-                          <i class='bx bx-sm bxs-cloud-download'></i>
-                      </div>
-                  </button>
-                  <button class="btn btn-accent btn-square" onclick="todoManager.cloudExport()">
-                      <div class="tooltip" data-tip="Export">
-                          <i class='bx bx-sm bxs-cloud-upload'></i>
-                      </div>
-                  </button>
-              </div>
-          </form>
-      </div>
+        <div class="modal-box">
+<!--          <h3 class="font-bold text-lg">Hello!</h3>-->
+<!--          <p class="py-4">Press ESC key or click the button below to close</p>-->
+            <form method="dialog">
+                <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
+              <!-- if there is a button in form, it will close the modal -->
+                <div class="flex flex-row gap-4 justify-center">
+                    <button class="btn btn-accent btn-square" onclick="todoManager.cloudImport()">
+                        <div class="tooltip" data-tip="Import">
+                            <i class='bx bx-sm bxs-cloud-download'></i>
+                        </div>
+                    </button>
+                    <button class="btn btn-accent btn-square" onclick="todoManager.cloudExport()">
+                        <div class="tooltip" data-tip="Export">
+                            <i class='bx bx-sm bxs-cloud-upload'></i>
+                        </div>
+                    </button>
+                </div>
+            </form>
+        </div>
     </dialog>
     <!-- Export Modal -->
     <dialog id="modal_export" class="modal modal-bottom sm:modal-middle">
-      <div class="modal-box">
-<!--        <div class="modal-action">-->
-          <form method="dialog">
-              <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
+        <div class="modal-box">
+            <form method="dialog">
+                <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
+              <!-- if there is a button in form, it will close the modal -->
+                <div class="flex flex-row gap-4 justify-center">
+                  <button class="btn" onclick="exportAs.csv()">csv</button>
+                  <button class="btn" onclick="exportAs.txt()">txt</button>
+                </div>
+            </form>
+        </div>
+    </dialog>
+    <!-- Import List Modal -->
+    <dialog id="modal_records" class="modal modal-bottom sm:modal-middle">
+        <div class="modal-box">
+            <form method="dialog">
+                <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
             <!-- if there is a button in form, it will close the modal -->
-              <div class="flex flex-row gap-4 justify-center">
-                <button class="btn" onclick="exportAs.csv()">csv</button>
-                <button class="btn" onclick="exportAs.txt()">txt</button>
-              </div>
-<!--            <button class="btn" onclick="todoManager.cloudExport()">Close</button>-->
-          </form>
-<!--        </div>-->
-      </div>
+            <!--              <div class="flex flex-row gap-4 justify-center">-->
+            <!--                <button class="btn" onclick="exportAs.csv()">csv</button>-->
+            <!--                <button class="btn" onclick="exportAs.txt()">txt</button>-->
+            <!--              </div>-->
+                <table class="table">
+                    <!-- head -->
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th>Date</th>
+                            <th>Size</th>
+                            <th><i class='bx bx-sm bx-sync'></i></th>
+                        </tr>
+                    </thead>
+                    <tbody class="imports-list-body">
+                    <!-- row 1 -->
+                        <tr>
+                            <th>1</th>
+                            <td>Cy Ganderton</td>
+                            <td>Quality Control Specialist</td>
+                            <td>Blue</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </form>
+        </div>
     </dialog>
     <!-- Modal -->
     <div id="modal_loading" class="modal">

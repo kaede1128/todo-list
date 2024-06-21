@@ -20,6 +20,7 @@ class TodoItemFormatter {
 // Class responsible for managing Todo items
 class TodoManager {
     constructor(todoItemFormatter) {
+        this.imports = []
         this.todos = JSON.parse(localStorage.getItem("todos")) || [];
         console.info("init Google Actions Script")
         this.todoItemFormatter = todoItemFormatter;
@@ -115,17 +116,48 @@ class TodoManager {
         this.todos.sort((a, b) => _timestamp(b.id) - _timestamp(a.id))
         localStorage.setItem("todos", JSON.stringify(this.todos));
     }
-
-    cloudImport() {
-        gs.get( (v)=>{
-            this.todos = JSON.parse(v)
-            console.warn(JSON.parse(v))
-            uiManager.displayTodos(this.todos)
+    cloudImport(t) {
+        gs.load( (v)=>{
+            if (t) {
+                let _import = this.imports.filter(d => d.t == t)[0]
+                console.warn(_import.d)
+                console.warn(JSON.parse(_import.d))
+                if (_import) {
+                    this.todos = JSON.parse(_import.d)
+                    this.saveToLocalStorage();
+                    uiManager.displayTodos(this.todos)
+                    uiManager.showAlertMessage( `Task of ${new Date(Number(t)).toLocaleString('en-CA',{ hour12: false }).replace(',','')} Load successfully`, "success", 5);
+                } else {
+                    uiManager.showAlertMessage("Load Failed", "Fail");
+                }
+            } else {
+                this.imports = JSON.parse(v)
+                uiManager.displayImportList(this.imports)
+                modal_records.showModal()
+            }
         } )
     }
     cloudExport() {
         // gs.set(JSON.parse(localStorage.getItem("todos")))
+        gs.save(JSON.parse(localStorage.getItem("todos")))
 	    // exportAs.txt(JSON.parse(localStorage.getItem("todos")))
+    }
+    JsonSizes(json) {
+        let bytes = encodeURI(JSON.stringify(json)).split(/%..|./).length - 1
+        if (!bytes) return '-'
+        const kiloBytes = bytes / 1024
+        if (kiloBytes < 0.005) {
+            return bytes.toFixed(2) + 'bytes'
+        }
+        if (kiloBytes < 1) {
+            return kiloBytes.toFixed(2) + 'KB'
+        }
+        const megaBytes = kiloBytes / 1024
+        if (megaBytes < 1) {
+            return megaBytes.toFixed(2) + 'MB'
+        }
+        const gigaBytes = megaBytes / 1024
+        return gigaBytes.toFixed(2) + 'GB'
     }
 }
 
@@ -139,6 +171,7 @@ class UIManager {
         this.dateInput = document.querySelector(".schedule-date");
         this.addBtn = document.querySelector(".add-task-button");
         this.todosListBody = document.querySelector(".todos-list-body");
+        this.importsListBody = document.querySelector(".imports-list-body");
         this.alertMessage = document.querySelector(".alert-message");
         this.deleteAllBtn = document.querySelector(".delete-all-btn");
 
@@ -187,10 +220,17 @@ class UIManager {
             });
         });
     }
+    htmlEntity(str) {
+        // const emojisRegex = /\p{RI}\p{RI}|\p{Emoji}(\p{EMod}|\uFE0F\u20E3?|[\u{E0020}-\u{E007E}]+\u{E007F})?(\u200D(\p{RI}\p{RI}|\p{Emoji}(\p{EMod}|\uFE0F\u20E3?|[\u{E0020}-\u{E007E}]+\u{E007F})?))*/gu;
+        // let emojis = str.match(emojisRegex).filter(emoji => !/^[#*0-9©®]$/.test(emoji));
 
+        return str.replace(/["'<>=(){}?+&|]/g, function(i) {
+            return "&#" + i.charCodeAt(0) + ";";
+        });
+    }
     handleAddTodo() {
-        const task = this.taskInput.value;
-        const remark = this.remarkInput.value;
+        const task = this.htmlEntity(this.taskInput.value);
+        const remark = this.htmlEntity(this.remarkInput.value);
         const dueDate = this.dateInput.value;
         if (task === "") {
             this.showAlertMessage("Please enter a task", "error");
@@ -251,6 +291,29 @@ class UIManager {
         `;
         });
     }
+    displayImportList(imports) {
+        this.importsListBody.innerHTML = "";
+        if (imports.length === 0) {
+            this.importsListBody.innerHTML = `<tr><td colspan="5" class="text-center">No Save found</td></tr>`;
+            return;
+        }
+
+        imports.forEach((im, i) => {
+            this.importsListBody.innerHTML +=
+            `<tr>
+                <th>${i+1}</th>
+                <td>${new Date(im.t).toLocaleString('en-CA',{ hour12: false }).replace(',','')}</td>
+                <td>${todoManager.JsonSizes(im.d)}</td>
+                <td>
+                    <button class="btn btn-accent btn-square" onclick="todoManager.cloudImport('${im.t}')">
+                        <div class="tooltip" data-tip="Import">
+                            <i class='bx bx-sm bxs-cloud-download'></i>
+                        </div>
+                    </button>
+                </td>
+            </tr>`
+        })
+    }
 
 
 
@@ -294,7 +357,7 @@ class UIManager {
     }
 
 
-    showAlertMessage(message, type) {
+    showAlertMessage(message, type, second = 3) {
     /* type<string>: info success warning error */
         console.info(`[!!!] ${type}:`, message)
         const alertBox = `
@@ -310,7 +373,7 @@ class UIManager {
         setTimeout(() => {
             this.alertMessage.classList.remove("show");
             this.alertMessage.classList.add("hide");
-        }, 3000);
+        }, second * 1000);
     }
 }
 
@@ -499,6 +562,56 @@ class GoogleAppsScript {
             console.info( "Data Removed: " + msg );
         });
 	}
+    submit(request, data, cb) {
+        if (!request || !request.action) {
+            console.warn("!!! submit error")
+            return
+        }
+        loading(true)
+        data.SpreadsheetId = this.GoogleSheetId
+		data.SpreadsheetName = request.GoogleSheetName ?? this.GoogleSheetName
+        data.action = request.action
+		$.ajax({
+            method: 'POST',
+			data: JSON.stringify(data),
+			url: this.url,
+			success: function(response) {
+                console.info(response)
+                // response: success#<getMaxRows>
+				/*if(response.includes( "success#")){
+                    let last = response.substring(response.indexOf("#")+1)
+					uiManager.showAlertMessage("Inserted to Spreadsheet row #" + last, "success");
+                } else {
+                    uiManager.showAlertMessage("Insert to Spreadsheet failed #" + todo.id, "error");
+                }*/
+			},
+		}).done(function( msg ) {
+            loading(false)
+            console.info( request.action + " submit: ", msg );
+            if (cb && typeof cb === 'function') { cb(msg) }
+            // uiManager.showAlertMessage("Process Finish "+msg, "success")
+        });
+    }
+    load(cb) {
+        let request = {
+            GoogleSheetName: "record",
+            action : "LOAD"
+        }
+        let data = {}
+        // if (timestamp) data.t = timestamp
+        this.submit(request, data, cb)
+    }
+    save(todo = {}) {
+        let request = {
+            GoogleSheetName: "record",
+            action : "SAVE"
+        }
+        let data = {
+            t: + new Date(),
+            d: JSON.stringify(todo)
+        }
+        this.submit(request, data)
+    }
 }
 
 class Exports {
