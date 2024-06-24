@@ -157,7 +157,27 @@ class TodoManager {
             return megaBytes.toFixed(2) + 'MB'
         }
         const gigaBytes = megaBytes / 1024
-        return gigaBytes.toFixed(2) + 'GB'
+        if (gigaBytes < 1) {
+            return gigaBytes.toFixed(2) + 'GB'
+        }
+        const tebiBytes = gigaBytes / 1024
+        if (tebiBytes < 1) {
+            return tebiBytes.toFixed(2) + 'TB'
+        }
+        const pebiBytes = tebiBytes / 1024
+        if (pebiBytes < 1) {
+            return pebiBytes.toFixed(2) + 'PB'
+        }
+        const expiBytes = pebiBytes / 1024
+        if (expiBytes < 1) {
+            return expiBytes.toFixed(2) + 'EB'
+        }
+        const zebiBytes = expiBytes / 1024
+        if (zebiBytes < 1) {
+            return zebiBytes.toFixed(2) + 'ZB'
+        }
+        const yobiBytes = zebiBytes / 1024
+        return yobiBytes.toFixed(2) + 'YB'
     }
 }
 
