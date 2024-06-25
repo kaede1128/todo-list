@@ -132,9 +132,18 @@ class TodoManager {
                 }
             } else {
                 this.imports = JSON.parse(v)
+                uiManager.isLockImportRecord = true
                 uiManager.displayImportList(this.imports)
                 modal_records.showModal()
             }
+        } )
+    }
+    cloudRemove(t) {
+        gs.removeRecord(t, (v)=>{
+            this.imports = JSON.parse(v)
+            // uiManager.isLockImportRecord = true
+            uiManager.displayImportList(this.imports)
+            modal_records.showModal()
         } )
     }
     cloudExport() {
@@ -191,10 +200,11 @@ class UIManager {
         this.dateInput = document.querySelector(".schedule-date");
         this.addBtn = document.querySelector(".add-task-button");
         this.todosListBody = document.querySelector(".todos-list-body");
+        this.importsListLockBtn = document.querySelector("#importsListLockBtn");
         this.importsListBody = document.querySelector(".imports-list-body");
         this.alertMessage = document.querySelector(".alert-message");
         this.deleteAllBtn = document.querySelector(".delete-all-btn");
-
+        this.isLockImportRecord = true
         this.addEventListeners();
         this.showAllTodos();
     }
@@ -312,6 +322,11 @@ class UIManager {
         });
     }
     displayImportList(imports) {
+        if (this.isLockImportRecord) {
+            if (this.importsListLockBtn.classList.contains("swap-active")) this.importsListLockBtn.classList.remove("swap-active")
+        } else {
+            this.importsListLockBtn.classList.add("swap-active")
+        }
         this.importsListBody.innerHTML = "";
         if (imports.length === 0) {
             this.importsListBody.innerHTML = `<tr><td colspan="5" class="text-center">No Save found</td></tr>`;
@@ -330,11 +345,21 @@ class UIManager {
                             <i class='bx bx-sm bxs-cloud-download'></i>
                         </div>
                     </button>
+                    <button ${this.isLockImportRecord? "disabled" : ""} class="btn btn-error btn-square remove-button" onclick="todoManager.cloudRemove('${im.t}')">
+                        <div class="tooltip" data-tip="Remove">
+                            <i class='bx bx-sm bxs-trash'></i>
+                        </div>
+                    </button>
                 </td>
             </tr>`
         })
     }
-
+    handleToggleLockImportRecord() {
+        this.isLockImportRecord = !this.isLockImportRecord
+        for (let btn of this.importsListBody.querySelectorAll(".remove-button")) {
+            btn.disabled = this.isLockImportRecord
+        }
+    }
 
 
     handleEditTodo(id) {
@@ -621,6 +646,17 @@ class GoogleAppsScript {
         // if (timestamp) data.t = timestamp
         this.submit(request, data, cb)
     }
+    removeRecord(t, cb) {
+        let request = {
+            GoogleSheetName: "record",
+            action : "DEL"
+        }
+        let data = {
+            t: t
+        }
+        // if (timestamp) data.t = timestamp
+        this.submit(request, data, cb)
+    }
     save(todo = {}) {
         let request = {
             GoogleSheetName: "record",
@@ -738,7 +774,7 @@ const themeSwitcher = new ThemeSwitcher(themesListRoot, themes, html);
 //     })
 // })
 
-document.querySelectorAll(".dropdown .swap").forEach(v => {
+document.querySelectorAll(".swap").forEach(v => {
     v.addEventListener("click", () => {
         if (v.classList.contains("swap-active")) {
             v.classList.remove("swap-active")
