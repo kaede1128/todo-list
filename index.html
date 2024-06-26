@@ -25,13 +25,14 @@
 </head>
 <body>
     <!-- Error message -->
-    <div class="alert-message m-1"></div>
+    <div class="alert-message z-10"></div>
 
     <!-- Copyright -->
-    <footer>
-        <div class="author-text">
+    <footer class="">
+        <div class="author-text justify-evenly">
             <p>Forked from ❤️<a href="https://github.com/abdellatif-laghjaj" target="_blank"><b>Abdellatif Laghjaj</b></a></p>
             <p>Additional by ❤️<a href="https://github.com/kaede1128" target="_blank"><b>kaede</b></a></p>
+            <label id="isSync" class="btn btn-ghost btn-xs"><i class='bx bxl-google bx-burst bx-xs'></i><span>Sync</span></label>
         </div>
     </footer>
     
@@ -49,7 +50,7 @@
             </div>
         </header>
 
-        <div class=" w-full grid grid-cols-8 gap-1 mb-3">
+        <div class="w-full grid grid-cols-8 gap-1 mb-3">
             <div class="todos-filter dropdown col-start-auto">
                 <label tabindex="0" class="btn swap swap-rotate m-1">
                     <i class='swap-off bx bx-filter bx-sm'/></i>
@@ -87,8 +88,8 @@
                     </li>
                 </ul>
             </div>
-            <button class="btn btn-secondary delete-all-btn col-span-2 col-end-9">
-                Delete All
+            <button class="btn btn-secondary clear-all-btn col-span-2 col-end-9">
+                Clear All
             </button>
         </div>
 
@@ -136,7 +137,7 @@
 <!--          <h3 class="font-bold text-lg">Hello!</h3>-->
 <!--          <p class="py-4">Press ESC key or click the button below to close</p>-->
             <form method="dialog">
-                <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
+                <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2 z-10">✕</button>
               <!-- if there is a button in form, it will close the modal -->
                 <div class="flex flex-row gap-4 justify-center">
                     <button class="btn btn-accent btn-square" onclick="todoManager.cloudImport()">
@@ -157,7 +158,7 @@
     <dialog id="modal_export" class="modal modal-bottom sm:modal-middle">
         <div class="modal-box">
             <form method="dialog">
-                <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
+                <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2 z-10">✕</button>
               <!-- if there is a button in form, it will close the modal -->
                 <div class="flex flex-row gap-4 justify-center">
                   <button class="btn" onclick="exportAs.csv()">csv</button>
@@ -170,7 +171,7 @@
     <dialog id="modal_records" class="modal modal-bottom sm:modal-middle">
         <div class="modal-box">
             <form method="dialog">
-                <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
+                <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2 z-10">✕</button>
             <!-- if there is a button in form, it will close the modal -->
             <!--              <div class="flex flex-row gap-4 justify-center">-->
             <!--                <button class="btn" onclick="exportAs.csv()">csv</button>-->

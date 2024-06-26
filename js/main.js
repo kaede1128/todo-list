@@ -25,6 +25,7 @@ class TodoManager {
         console.info("init Google Actions Script")
         this.todoItemFormatter = todoItemFormatter;
         this.editId = ""
+        this.isSync = true
     }
 
     addTodo(task, dueDate, remark) {
@@ -49,7 +50,7 @@ class TodoManager {
         };
         this.todos.push(newTodo);
         this.saveToLocalStorage();
-        gs.set(newTodo)
+        // gs.set(newTodo)
         return newTodo;
     }
 
@@ -65,7 +66,7 @@ class TodoManager {
     deleteTodo(id) {
         this.todos = this.todos.filter((todo) => todo.id !== id);
         this.saveToLocalStorage();
-        gs.remove(id)
+        // gs.remove(id)
     }
 
     toggleTodoStatus(id) {
@@ -73,8 +74,7 @@ class TodoManager {
         if (todo) {
             todo.completed = !todo.completed;
             todo.status = todo.completed ? "completed" : "pending";
-            // gs.remove(todo.id)
-            gs.set(todo)
+            // gs.set(todo)
             this.saveToLocalStorage();
         }
     }
@@ -83,7 +83,7 @@ class TodoManager {
         if (this.todos.length > 0) {
             this.todos = [];
             this.saveToLocalStorage();
-            gs.remove("REMOVE_ALL")
+            // gs.remove("REMOVE_ALL")
         }
     }
 
@@ -110,6 +110,8 @@ class TodoManager {
     }
 
     saveToLocalStorage() {
+        this.isSync = false
+        uiManager.freshSyncStatusUI()
         let _timestamp = (v) => {
             return v.substring(0, v.indexOf('@'))
         }
@@ -148,8 +150,16 @@ class TodoManager {
     }
     cloudExport() {
         // gs.set(JSON.parse(localStorage.getItem("todos")))
-        gs.save(JSON.parse(localStorage.getItem("todos")))
+        if (!this.isSync) {
+            gs.save(JSON.parse(localStorage.getItem("todos")), () => {
+                this.isSync = true
+                uiManager.freshSyncStatusUI()
+            })
+        } else {
+            uiManager.showAlertMessage("Already export", "info")
+        }
 	    // exportAs.txt(JSON.parse(localStorage.getItem("todos")))
+
     }
     JsonSizes(json) {
         let bytes = encodeURI(JSON.stringify(json)).split(/%..|./).length - 1
@@ -203,7 +213,8 @@ class UIManager {
         this.importsListLockBtn = document.querySelector("#importsListLockBtn");
         this.importsListBody = document.querySelector(".imports-list-body");
         this.alertMessage = document.querySelector(".alert-message");
-        this.deleteAllBtn = document.querySelector(".delete-all-btn");
+        this.clearAllBtn = document.querySelector(".clear-all-btn");
+        this.syncStatus = document.querySelector("#isSync");
         this.isLockImportRecord = true
         this.addEventListeners();
         this.showAllTodos();
@@ -228,8 +239,24 @@ class UIManager {
         });
 
         // Event listener for deleting all todos
-        this.deleteAllBtn.addEventListener("click", () => {
-            this.handleClearAllTodos();
+        this.clearAllBtn.addEventListener("click", () => {
+            // this.handleClearAllTodos();
+            console.warn("lastSync", gs.lastSync)
+            console.warn("localStorage", localStorage.getItem("todos"))
+            console.warn(deepCompare(gs.lastSync, localStorage.getItem("todos")))
+            if (!deepCompare(gs.lastSync, localStorage.getItem("todos"))) {
+                gs.save(JSON.parse(localStorage.getItem("todos")))
+            }
+        });
+
+        // Event listener for check sync status with gas
+        this.freshSyncStatusUI()
+        this.syncStatus.addEventListener("click", () => {
+            if (!deepCompare(gs.lastSync, localStorage.getItem("todos"))) {
+                todoManager.cloudExport()
+            } else {
+                this.showAlertMessage("There is no change", "info")
+            }
         });
 
         // Event listeners for filter buttons
@@ -249,6 +276,22 @@ class UIManager {
                 }
             });
         });
+    }
+    freshSyncStatusUI = () => {
+        const syncStatusIcon = this.syncStatus.querySelector("i")
+        console.info("freshSyncStatusUI", todoManager.isSync)
+        if (todoManager.isSync) {
+            if (syncStatusIcon.classList.contains("bxl-google"))
+                syncStatusIcon.classList.replace("bxl-google", "bxs-check-circle")
+            if (syncStatusIcon.classList.contains("bx-burst"))
+                syncStatusIcon.classList.remove("bx-burst")
+        } else {
+            if (syncStatusIcon.classList.contains("bxs-check-circle"))
+                syncStatusIcon.classList.replace("bxs-check-circle", "bxl-google")
+
+            syncStatusIcon.classList.add("bx-burst")
+
+        }
     }
     htmlEntity(str) {
         // const emojisRegex = /\p{RI}\p{RI}|\p{Emoji}(\p{EMod}|\uFE0F\u20E3?|[\u{E0020}-\u{E007E}]+\u{E007F})?(\u200D(\p{RI}\p{RI}|\p{Emoji}(\p{EMod}|\uFE0F\u20E3?|[\u{E0020}-\u{E007E}]+\u{E007F})?))*/gu;
@@ -405,20 +448,29 @@ class UIManager {
     showAlertMessage(message, type, second = 3) {
     /* type<string>: info success warning error */
         console.info(`[!!!] ${type}:`, message)
-        const alertBox = `
-          <div class="alert alert-${type} shadow-lg mb-5 w-full">
-            <div>
+        const alertClass = ["alert", `alert-${type}`, "shadow-lg", "mt-3", "hide"]
+        const alertBoxContent = `
               <span>${message}</span>
-            </div>
-          </div>
         `;
-        this.alertMessage.innerHTML = alertBox;
-        this.alertMessage.classList.remove("hide");
-        this.alertMessage.classList.add("show");
-        setTimeout(() => {
-            this.alertMessage.classList.remove("show");
-            this.alertMessage.classList.add("hide");
-        }, second * 1000);
+        const alertBox = document.createElement("div")
+        alertClass.forEach(c => { alertBox.classList.add(c) })
+        alertBox.innerHTML = alertBoxContent
+        this.alertMessage.appendChild(alertBox)
+        setTimeout( () => {
+            alertBox.classList.remove("hide");
+            alertBox.classList.add("show");
+
+            setTimeout(() => {
+                alertBox.classList.add("hide");
+                alertBox.classList.remove("show");
+
+                setTimeout( () => {
+                    this.alertMessage.removeChild(alertBox)
+
+                }, 300)
+            }, second * 1000);
+        }, 100)
+
     }
 }
 
@@ -514,6 +566,7 @@ class GoogleAppsScript {
 		this.GoogleSheetId = "1PmSGaEcacXDKymvkgW3oqEdRyIG2OJ8KyWVbXZXhuqI"
 		this.GoogleSheetName = "todolist"
         this.url = `https://script.google.com/macros/s/${this.GoogleAppsScriptId}/exec`
+        this.lastSync = localStorage.getItem("todos")
 	}
     get(cb) {
         loading(true)
@@ -657,7 +710,8 @@ class GoogleAppsScript {
         // if (timestamp) data.t = timestamp
         this.submit(request, data, cb)
     }
-    save(todo = {}) {
+    save(todo = {}, cb) {
+        this.lastSync = JSON.stringify(todo)
         let request = {
             GoogleSheetName: "record",
             action : "SAVE"
@@ -666,7 +720,7 @@ class GoogleAppsScript {
             t: + new Date(),
             d: JSON.stringify(todo)
         }
-        this.submit(request, data)
+        this.submit(request, data, cb)
     }
 }
 
@@ -812,3 +866,27 @@ document.querySelectorAll(".modal-box").forEach(v => {
         e.stopPropagation()
     })
 })
+function deepCompare(arg1, arg2) {
+    if (Object.prototype.toString.call(arg1) === Object.prototype.toString.call(arg2)){
+        if (Object.prototype.toString.call(arg1) === '[object Object]' || Object.prototype.toString.call(arg1) === '[object Array]' ){
+            if (Object.keys(arg1).length !== Object.keys(arg2).length ){
+                return false;
+            }
+            return (Object.keys(arg1).every(function(key){
+                return deepCompare(arg1[key],arg2[key]);
+            }));
+        }
+        return (arg1===arg2);
+    }
+    return false;
+}
+window.addEventListener('beforeunload', (e) => {
+    if (!deepCompare(gs.lastSync, localStorage.getItem("todos"))) {
+        gs.save(JSON.parse(localStorage.getItem("todos")))
+        // Perform the work to save the document.
+        e.preventDefault();
+    }
+})
+// window.addEventListener("storage", ()=> {
+//     console.info("")
+// })
