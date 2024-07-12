@@ -1,3 +1,14 @@
+class ClipBoard {
+    toCopy(val) {
+        // falls back if not unsupported
+        if ('clipboard' in navigator && navigator.clipboard && 'writeText' in navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(val)
+            uiManager.showAlertMessage(`Copied ${val}`, 'info')
+        }
+        else
+            uiManager.showAlertMessage(`Copy failed`)
+    }
+}
 // Abstract class for TodoItemFormatter
 class TodoItemFormatter {
     formatTask(task) {
@@ -5,6 +16,10 @@ class TodoItemFormatter {
     }
 
     formatRemark(remark) {
+        const regex = /(&#40;|\()(.*)(&#41;|\))/m
+        const found = regex.test(remark) ? remark.match(/(&#40;|\()(.*)(&#41;|\))/m)[2] : ""
+        console.info(found)
+        remark = remark.replace(regex, `<button onclick="clipBoard.toCopy('${found}')" class="onMore text-info-content tooltip" data-tip="${found}">(...)</button>`)
         return '<span class="remark">' + remark + '</span>' || "";
     }
 
@@ -130,7 +145,7 @@ class TodoManager {
                     uiManager.displayTodos(this.todos)
                     uiManager.showAlertMessage( `Task of ${new Date(Number(t)).toLocaleString('en-CA',{ hour12: false }).replace(',','')} Load successfully`, "success", 5);
                 } else {
-                    uiManager.showAlertMessage("Load Failed", "Fail");
+                    uiManager.showAlertMessage("Load Failed", "warn");
                 }
             } else {
                 this.imports = JSON.parse(v)
@@ -813,6 +828,7 @@ class Exports {
 // Instantiating the classes
 const gs = new GoogleAppsScript();
 const exportAs = new Exports();
+const clipBoard = new ClipBoard();
 const todoItemFormatter = new TodoItemFormatter();
 const todoManager = new TodoManager(todoItemFormatter);
 const uiManager = new UIManager(todoManager, todoItemFormatter);

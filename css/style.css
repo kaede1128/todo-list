@@ -139,8 +139,13 @@ header .input-section {
 .todo-item .remark{
     display: block;
     font-style: italic;
-    opacity: 0.5;
     font-size: 0.8rem;
+    --tw-text-opacity: 0.5;
+    color: hsl(var(--nc,var(--nc))/var(--tw-text-opacity))
+}
+.todo-item .remark .tooltip:before {
+    --tw-bg-opacity: 1;
+    background: linear-gradient(90deg, hsl(var(--sf,var(--s))/var(--tw-bg-opacity)) 0%, hsl(var(--sf,var(--s))/0) 100%);
 }
 
 .todo-item p{
